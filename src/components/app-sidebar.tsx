@@ -23,6 +23,8 @@ import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
+import { NavMail, NavMailCollapsed } from "@/components/nav-mail"
+import { EmailFolder } from "@/lib/types/email"
 import {
   Sidebar,
   SidebarContent,
@@ -150,9 +152,32 @@ const data = {
   ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  showMailNav?: boolean
+  selectedFolder?: EmailFolder
+  onFolderChange?: (folder: EmailFolder) => void
+  folderCounts?: {
+    inbox: number
+    sent: number
+    drafts: number
+    trash: number
+    starred: number
+  }
+  unreadCount?: number
+  onCompose?: () => void
+}
+
+export function AppSidebar({
+  showMailNav = false,
+  selectedFolder = 'inbox',
+  onFolderChange = () => {},
+  folderCounts = { inbox: 0, sent: 0, drafts: 0, trash: 0, starred: 0 },
+  unreadCount = 0,
+  onCompose,
+  ...props
+}: AppSidebarProps) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -169,8 +194,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+        {showMailNav ? (
+          <>
+            <NavMail
+              selectedFolder={selectedFolder}
+              onFolderChange={onFolderChange}
+              folderCounts={folderCounts}
+              unreadCount={unreadCount}
+              onCompose={onCompose}
+            />
+            <NavMailCollapsed
+              selectedFolder={selectedFolder}
+              onFolderChange={onFolderChange}
+              folderCounts={folderCounts}
+              unreadCount={unreadCount}
+              onCompose={onCompose}
+            />
+          </>
+        ) : (
+          <>
+            <NavMain items={data.navMain} />
+            <NavDocuments items={data.documents} />
+          </>
+        )}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

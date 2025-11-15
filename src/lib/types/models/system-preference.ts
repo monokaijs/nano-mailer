@@ -1,9 +1,7 @@
 export interface SystemPreference {
   _id: string;
-  systemName: string;
-  allowRegistration: boolean;
-  googleOAuthClientId?: string;
-  googleOAuthClientSecret?: string;
+  key: string;
+  value: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

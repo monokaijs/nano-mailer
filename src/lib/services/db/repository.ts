@@ -36,8 +36,10 @@ export class BaseRepository<T> {
     return this._model.exists(this.processFilter(filter));
   }
 
-  findOneAndUpdate(filter: FilterQuery<T>, update?: UpdateQuery<T>, options?: QueryOptions<T>) {
-    return this._model.findOneAndUpdate(filter, update, options);
+  updateOne(id: string | Types.ObjectId, update?: UpdateQuery<T>, options?: QueryOptions<T>) {
+    return this._model.findOneAndUpdate({
+      _id: id,
+    }, update, options);
   }
 
   paginate(filter: FilterQuery<T>, options?: PaginateOptions) {

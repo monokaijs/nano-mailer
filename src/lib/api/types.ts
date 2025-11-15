@@ -21,11 +21,6 @@ export interface ApiErrorResponse {
   message: string
 }
 
-export interface LoginDto {
-  username: string
-  password: string
-}
-
 export interface LoginResponseDto {
   user: {
     id: string
@@ -50,21 +45,6 @@ export interface RegisterResponseDto {
     fullName: string
     role: UserRole
   }
-}
-
-export interface UpdateUserDto {
-  fullName?: string
-  phoneNumber?: string
-  photo?: string
-}
-
-export interface CreateUserDto {
-  username: string
-  password: string
-  fullName: string
-  role: UserRole
-  phoneNumber?: string
-  photo?: string
 }
 
 export interface UserListParams {

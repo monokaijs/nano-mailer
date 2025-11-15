@@ -1,21 +1,11 @@
-import {NextRequest} from "next/server";
 import {dbService} from "@/lib/services/db";
 import {UserRole} from "@/lib/types/models/user";
 import bcrypt from "bcryptjs";
 import {withApi} from "@/lib/utils/withApi";
+import {registerSchema} from "@/lib/validations/register";
 
-async function handler(request: NextRequest) {
-  const systemPreference = await dbService.systemPreference.findOne({});
-
-  if (!systemPreference) {
-    throw {code: 400, message: "System is not set up yet"};
-  }
-
-  if (!systemPreference.allowRegistration) {
-    throw {code: 403, message: "Registration is not allowed"};
-  }
-
-  const body = await request.json();
+export const POST = withApi(async (request, context) => {
+  const body = context.data;
   const {username, password, fullName} = body;
 
   if (!username || typeof username !== 'string') {
@@ -52,7 +42,8 @@ async function handler(request: NextRequest) {
       role: user.role,
     },
   };
-}
-
-export const POST = withApi(handler);
+}, {
+  isPublic: true,
+  schema: registerSchema,
+});
 
