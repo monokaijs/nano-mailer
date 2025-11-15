@@ -1,22 +1,24 @@
 "use client";
+
 import {cn} from "@/lib/utils/cn"
+import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle,} from "@/components/ui/card"
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage,} from "@/components/ui/form"
-import {useForm} from "react-hook-form";
-import {authApi, RegisterDto} from "@/lib/api";
-import {registerSchema} from "@/lib/validations/register";
+import {Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator} from "@/components/ui/field"
+import {Input} from "@/components/ui/input"
+import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {zodResolver} from "@hookform/resolvers/zod";
+import {useForm} from "react-hook-form";
+import {registerSchema} from "@/lib/validations/register";
+import {registerApi} from "@/app/api/auth/register/register.controller";
+import {z} from "zod";
 import {toast} from "sonner";
-import {useRouter} from "next/navigation";
-import {FieldDescription} from "@/components/ui/field";
-import {Input} from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
 
 export function RegisterForm({
                                className,
                                ...props
                              }: React.ComponentProps<"div">) {
-  const form = useForm<RegisterDto>({
+  const {mutateAsync} = registerApi.useMutation();
+  const form = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       username: "",
@@ -24,36 +26,33 @@ export function RegisterForm({
       fullName: "",
     },
   });
-  const router = useRouter();
-
-  const onSubmit = async (data: RegisterDto) => {
+  const onSubmit = async (data: z.infer<typeof registerSchema>) => {
     try {
-      const response = await authApi.register(data);
-      toast.success(response.message);
-      router.push("/login");
+      const res = await mutateAsync(data);
+      toast.success(res.message);
+      form.reset();
     } catch (error: any) {
       toast.error(error.message);
     }
   };
-
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Create account</CardTitle>
+          <CardTitle className="text-xl">Hello</CardTitle>
           <CardDescription>
-            Create an account to get started
+            Create an account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit((onSubmit))} className={'space-y-4'}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="fullName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full name</FormLabel>
+                    <FormLabel>Full Name</FormLabel>
                     <FormControl>
                       <Input placeholder="John Doe" {...field} />
                     </FormControl>
@@ -68,7 +67,7 @@ export function RegisterForm({
                   <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                      <Input placeholder="someone" {...field} />
+                      <Input placeholder="shadcn" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -87,11 +86,12 @@ export function RegisterForm({
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Register
-              </Button>
+              <Button type="submit" className="w-full">Submit</Button>
             </form>
           </Form>
+          <div className="text-center text-sm text-muted-foreground mt-4">
+            Already have an account? <a href="/login">Login</a>
+          </div>
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">

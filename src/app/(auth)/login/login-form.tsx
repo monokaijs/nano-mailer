@@ -1,47 +1,37 @@
 "use client";
+
 import {cn} from "@/lib/utils/cn"
 import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle,} from "@/components/ui/card"
+import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage,} from "@/components/ui/form"
 import {Input} from "@/components/ui/input"
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
-import {zodResolver} from "@hookform/resolvers/zod";
 import {useForm} from "react-hook-form";
-import {LoginDto, loginSchema} from "@/lib/validations/login";
-import {useRouter} from "next/navigation";
-import {toast} from "sonner";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {loginSchema} from "@/lib/validations/login";
+import {z} from "zod";
 import {signIn} from "next-auth/react";
+
 
 export function LoginForm({
                             className,
                             ...props
                           }: React.ComponentProps<"div">) {
-  const form = useForm<LoginDto>({
+  const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       username: "",
-      password: "",
     },
   });
-  const router = useRouter();
 
-  const onSubmit = async (data: LoginDto) => {
-    try {
-      const result = await signIn("credentials", {
-        username: data.username,
-        password: data.password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        toast.error("Invalid username or password");
-        return;
-      }
-
-      toast.success("Login successful");
-      router.push("/dashboard");
-    } catch (error: any) {
-      toast.error(error.message || "An error occurred");
-    }
+  const onSubmit = (data: z.infer<typeof loginSchema>) => {
+    signIn("credentials", {
+      ...data,
+      redirect: false
+    }).then((res) => {
+      window.location.href = "/dashboard";
+    }).finally(() => {
+      // form.reset();
+    });
   };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -54,7 +44,7 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className={'space-y-4'}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="username"
@@ -62,7 +52,7 @@ export function LoginForm({
                   <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                      <Input placeholder="someone" {...field} />
+                      <Input placeholder="shadcn" {...field} />
                     </FormControl>
                     <FormMessage/>
                   </FormItem>
@@ -81,11 +71,12 @@ export function LoginForm({
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Login
-              </Button>
+              <Button type="submit" className="w-full">Submit</Button>
             </form>
           </Form>
+          <div className="text-center text-sm text-muted-foreground mt-4">
+            Don't have an account? <a href="/register">Register</a>
+          </div>
         </CardContent>
       </Card>
     </div>
